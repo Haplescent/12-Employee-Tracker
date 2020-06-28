@@ -1,2 +1,5 @@
 /node_modules
 /package-lock.json
+/employee_query.sql
+/.env
+/trash.js
