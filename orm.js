@@ -111,6 +111,35 @@ const AddAnEmployeeSqlRequest = (inputObj) => {
     );
   });
 };
+
+const GetEmployeeIdFromName = (firstName, lastName) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `
+      SELECT id 
+      FROM employee 
+      WHERE first_name = ? AND last_name = ?;`,
+      [firstName, lastName],
+      (err, data) => {
+        err ? reject(err) : resolve(data);
+      }
+    );
+  });
+};
+
+const RemoveAnEmployeeFromDatabase = (id) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `
+      DELETE FROM employee WHERE id = ?;`,
+      [id],
+      (err) => {
+        err ? reject(err) : resolve();
+      }
+    );
+  });
+};
+
 module.exports = {
   ViewAllDepartmentPromise,
   ViewAllEmployeesbyDepartmentPromise,
@@ -120,4 +149,6 @@ module.exports = {
   ViewAllRolesPromise,
   GetRoleIdFromTitle,
   AddAnEmployeeSqlRequest,
+  GetEmployeeIdFromName,
+  RemoveAnEmployeeFromDatabase,
 };
