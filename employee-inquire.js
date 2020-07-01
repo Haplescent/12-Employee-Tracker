@@ -11,6 +11,8 @@ const {
   AddAnEmployeeSqlRequest,
   GetEmployeeIdFromName,
   RemoveAnEmployeeFromDatabase,
+  UpdateEmployeeRoleSQLRequest,
+  UpdateEmployeeManagerSQLRequest,
 } = require("./orm");
 
 // Helper functions that are NOT exported
@@ -21,6 +23,47 @@ const DisplayFirstAndLastName = (data) => {
       console.log(`${element.first_name} ${element.last_name}`)
     );
     resolve();
+  });
+};
+
+const SelectAnEmployee = () => {
+  return new Promise(async (resolve, reject) => {
+    const data = await ViewAllEmployeesPromise();
+    const promptArray = data.map((e) => `${e.first_name} ${e.last_name}`);
+    const answers = await inquirer.prompt([
+      {
+        type: "list",
+        name: "employee",
+        message: "Which Employee?",
+        choices: promptArray,
+      },
+    ]);
+    const name = answers.employee;
+    const nameArray = name.split(" ");
+    const employeeID = await GetEmployeeIdFromName(nameArray[0], nameArray[1]);
+    resolve(employeeID[0].id);
+  });
+};
+
+const SelectAManager = () => {
+  return new Promise(async (resolve, reject) => {
+    const data = await ViewAllManagerPromise();
+    const promptArray = [];
+    const MangerNameToId = {};
+    data.forEach((e) => {
+      promptArray.push(`${e.first_name} ${e.last_name}`);
+      MangerNameToId[`${e.first_name} ${e.last_name}`] = e.id;
+    });
+    answers = await inquirer.prompt([
+      {
+        type: "list",
+        name: "action",
+        message: "Which Manager?",
+        choices: promptArray,
+      },
+    ]);
+    const managerID = MangerNameToId[answers.action];
+    resolve(managerID);
   });
 };
 
@@ -78,22 +121,7 @@ const DisplayEmployeesbyDepartment = () => {
 
 const DisplayEmployeebyManager = () => {
   return new Promise(async (resolve, reject) => {
-    const data = await ViewAllManagerPromise();
-    const promptArray = [];
-    const MangerNameToId = {};
-    data.forEach((e) => {
-      promptArray.push(`${e.first_name} ${e.last_name}`);
-      MangerNameToId[`${e.first_name} ${e.last_name}`] = e.id;
-    });
-    answers = await inquirer.prompt([
-      {
-        type: "list",
-        name: "action",
-        message: "Which Manager?",
-        choices: promptArray,
-      },
-    ]);
-    const managerID = MangerNameToId[answers.action];
+    const managerID = await SelectAManager();
     const selectedData = await ViewAllEmployeesbyManagerPromise(managerID);
     DisplayFirstAndLastName(selectedData);
     resolve();
@@ -124,7 +152,7 @@ const AddAnEmployee = () => {
     const inputObject = {
       firstName: answers.firstName,
       lastName: answers.lastName,
-      role_id: roleID[0].id,
+      role_id: roleID,
     };
     AddAnEmployeeSqlRequest(inputObject);
     resolve();
@@ -133,28 +161,39 @@ const AddAnEmployee = () => {
 
 const RemoveAnEmployee = () => {
   return new Promise(async (resolve, reject) => {
-    const data = await ViewAllEmployeesPromise();
-    const promptArray = data.map((e) => `${e.first_name} ${e.last_name}`);
-    const answers = await inquirer.prompt([
-      {
-        type: "list",
-        name: "employee",
-        message: "Which Employee?",
-        choices: promptArray,
-      },
-    ]);
-    const name = answers.employee;
-    const nameArray = name.split(" ");
-    const employeeID = await GetEmployeeIdFromName(nameArray[0], nameArray[1]);
-    RemoveAnEmployeeFromDatabase(employeeID[0].id);
+    const employeeID = await SelectAnEmployee();
+    RemoveAnEmployeeFromDatabase(employeeID);
     resolve();
   });
 };
+
 const UpdateAnEmployeeRole = () => {
-  return new Promise((resolve, reject) => {});
+  return new Promise(async (resolve, reject) => {
+    const employeeID = await SelectAnEmployee();
+    const data = await ViewAllRolesPromise();
+    const promptArray = data.map((e) => e.title);
+    const answer = await inquirer.prompt([
+      {
+        type: "list",
+        name: "title",
+        message: "Which Role?",
+        choices: promptArray,
+      },
+    ]);
+    const title = answer.title;
+    const roleID = await GetRoleIdFromTitle(title);
+    UpdateEmployeeRoleSQLRequest(employeeID, roleID);
+    resolve();
+  });
 };
+
 const UpdateAnEmployeeManager = () => {
-  return new Promise((resolve, reject) => {});
+  return new Promise(async (resolve, reject) => {
+    const employeeID = await SelectAnEmployee();
+    const managerID = await SelectAManager();
+    UpdateEmployeeManagerSQLRequest(employeeID, managerID);
+    resolve();
+  });
 };
 
 module.exports = {

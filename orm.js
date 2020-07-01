@@ -91,7 +91,7 @@ const GetRoleIdFromTitle = (title) => {
       WHERE title = ?`,
       [title],
       (err, data) => {
-        err ? reject(err) : resolve(data);
+        err ? reject(err) : resolve(data[0].id);
       }
     );
   });
@@ -131,7 +131,8 @@ const RemoveAnEmployeeFromDatabase = (id) => {
   return new Promise((resolve, reject) => {
     connection.query(
       `
-      DELETE FROM employee WHERE id = ?;`,
+      DELETE FROM employee 
+      WHERE id = ?;`,
       [id],
       (err) => {
         err ? reject(err) : resolve();
@@ -140,6 +141,34 @@ const RemoveAnEmployeeFromDatabase = (id) => {
   });
 };
 
+const UpdateEmployeeRoleSQLRequest = (id, role_id) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `
+      UPDATE employee
+      SET role_id = ?
+      WHERE id = ?;`,
+      [role_id, id],
+      (err) => {
+        err ? reject(err) : resolve();
+      }
+    );
+  });
+};
+const UpdateEmployeeManagerSQLRequest = (id, manager_id) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `
+      UPDATE employee
+      SET manager_id = ?
+      WHERE id = ?;`,
+      [manager_id, id],
+      (err) => {
+        err ? reject(err) : resolve();
+      }
+    );
+  });
+};
 module.exports = {
   ViewAllDepartmentPromise,
   ViewAllEmployeesbyDepartmentPromise,
@@ -151,4 +180,6 @@ module.exports = {
   AddAnEmployeeSqlRequest,
   GetEmployeeIdFromName,
   RemoveAnEmployeeFromDatabase,
+  UpdateEmployeeRoleSQLRequest,
+  UpdateEmployeeManagerSQLRequest,
 };
