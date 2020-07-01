@@ -17,7 +17,7 @@ const {
   AddARoleSqlRequest,
 } = require("./orm");
 
-// Helper functions that are NOT exported
+// SELECT functions take no parameters and return the ID of whatever the user choses
 
 const SelectADepartment = () => {
   return new Promise(async (resolve, reject) => {
@@ -38,15 +38,6 @@ const SelectADepartment = () => {
     ]);
     const DepartmentID = DepartmentNameToId[answers.action];
     resolve(DepartmentID);
-  });
-};
-
-const DisplayFirstAndLastName = (data) => {
-  return new Promise((resolve, reject) => {
-    data.forEach((element) =>
-      console.log(`${element.first_name} ${element.last_name}`)
-    );
-    resolve();
   });
 };
 
@@ -91,29 +82,14 @@ const SelectAManager = () => {
   });
 };
 
-// Start of helper functions that ARE exported
+// Display functions use the Select functions from above to display employee information
 
-const Introduction = () => {
-  return new Promise(async (resolve, reject) => {
-    const answer = await inquirer.prompt([
-      {
-        type: "list",
-        name: "action",
-        message: "What do you want to do?",
-        choices: [
-          "View all employees",
-          "View all employees by department",
-          "View all employees by manager",
-          "Add an employee",
-          "Remove an employee",
-          "Update an employee role",
-          "Update an employee manager",
-          "Add a Department",
-          "Add a role",
-        ],
-      },
-    ]);
-    resolve(answer);
+const DisplayFirstAndLastName = (data) => {
+  return new Promise((resolve, reject) => {
+    data.forEach((element) =>
+      console.log(`${element.first_name} ${element.last_name}`)
+    );
+    resolve();
   });
 };
 
@@ -145,6 +121,32 @@ const DisplayEmployeebyManager = () => {
   });
 };
 
+const Introduction = () => {
+  return new Promise(async (resolve, reject) => {
+    const answer = await inquirer.prompt([
+      {
+        type: "list",
+        name: "action",
+        message: "What do you want to do?",
+        choices: [
+          "View all employees",
+          "View all employees by department",
+          "View all employees by manager",
+          "Add an employee",
+          "Remove an employee",
+          "Update an employee role",
+          "Update an employee manager",
+          "Add a Department",
+          "Add a role",
+        ],
+      },
+    ]);
+    resolve(answer);
+  });
+};
+
+// Add and Remove functions use Select and Display functions to add/remove employee information
+
 const AddAnEmployee = () => {
   return new Promise(async (resolve, reject) => {
     const data = await ViewAllRolesPromise();
@@ -172,6 +174,38 @@ const AddAnEmployee = () => {
       role_id: roleID[0].id,
     };
     AddAnEmployeeSqlRequest(inputObject);
+    resolve();
+  });
+};
+
+const AddADepartment = () => {
+  return new Promise(async (resolve, reject) => {
+    const answers = await inquirer.prompt([
+      {
+        name: "department",
+        message: "Name of Department",
+      },
+    ]);
+    AddADepartmentSqlRequest(answers.department);
+    resolve();
+  });
+};
+
+const AddARole = () => {
+  return new Promise(async (resolve, reject) => {
+    departmentID = await SelectADepartment();
+    const answers = await inquirer.prompt([
+      {
+        name: "title",
+        message: "title?",
+      },
+      {
+        name: "salary",
+        message: "salary?",
+      },
+    ]);
+    salary = parseInt(answers.salary);
+    AddARoleSqlRequest(departmentID, answers.title, salary);
     resolve();
   });
 };
@@ -209,38 +243,6 @@ const UpdateAnEmployeeManager = () => {
     const employeeID = await SelectAnEmployee();
     const managerID = await SelectAManager();
     UpdateEmployeeManagerSQLRequest(employeeID, managerID);
-    resolve();
-  });
-};
-
-const AddADepartment = () => {
-  return new Promise(async (resolve, reject) => {
-    const answers = await inquirer.prompt([
-      {
-        name: "department",
-        message: "Name of Department",
-      },
-    ]);
-    AddADepartmentSqlRequest(answers.department);
-    resolve();
-  });
-};
-
-const AddARole = () => {
-  return new Promise(async (resolve, reject) => {
-    departmentID = await SelectADepartment();
-    const answers = await inquirer.prompt([
-      {
-        name: "title",
-        message: "title?",
-      },
-      {
-        name: "salary",
-        message: "salary?",
-      },
-    ]);
-    salary = parseInt(answers.salary);
-    AddARoleSqlRequest(departmentID, answers.title, salary);
     resolve();
   });
 };
