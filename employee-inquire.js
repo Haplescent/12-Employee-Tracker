@@ -101,6 +101,26 @@ const DisplayEmployees = () => {
   });
 };
 
+const DisplayDepartment = () => {
+  return new Promise(async (resolve, reject) => {
+    const data = await ViewAllDepartmentPromise();
+    data.forEach((e) => {
+      console.log(e["s"]);
+    });
+    resolve();
+  });
+};
+
+const DisplayRoles = () => {
+  return new Promise(async (resolve, reject) => {
+    const data = await ViewAllRolesPromise();
+    data.forEach((e) => {
+      console.log(e["title"]);
+    });
+    resolve();
+  });
+};
+
 const DisplayEmployeesbyDepartment = () => {
   return new Promise(async (resolve, reject) => {
     departmentID = await SelectADepartment();
@@ -138,6 +158,8 @@ const Introduction = () => {
           "Update an employee manager",
           "Add a Department",
           "Add a role",
+          "View all departments",
+          "View all roles",
         ],
       },
     ]);
@@ -252,6 +274,8 @@ module.exports = {
   DisplayEmployees,
   DisplayEmployeesbyDepartment,
   DisplayEmployeebyManager,
+  DisplayDepartment,
+  DisplayRoles,
   AddAnEmployee,
   RemoveAnEmployee,
   UpdateAnEmployeeRole,

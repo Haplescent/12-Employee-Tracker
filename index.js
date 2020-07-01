@@ -5,6 +5,8 @@ const {
   DisplayEmployees,
   DisplayEmployeesbyDepartment,
   DisplayEmployeebyManager,
+  DisplayDepartment,
+  DisplayRoles,
   AddAnEmployee,
   RemoveAnEmployee,
   UpdateAnEmployeeRole,
@@ -41,6 +43,10 @@ const mainMenu = () => {
         await AddADepartment();
       } else if (answers.action === "Add a role") {
         await AddARole();
+      } else if (answers.action === "View all departments") {
+        await DisplayDepartment();
+      } else if (answers.action === "View all roles") {
+        await DisplayRoles();
       } else {
         console.log("not a valid choice please try again");
         mainMenu();
