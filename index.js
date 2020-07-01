@@ -9,6 +9,8 @@ const {
   RemoveAnEmployee,
   UpdateAnEmployeeRole,
   UpdateAnEmployeeManager,
+  AddADepartment,
+  AddARole,
 } = require("./employee-inquire");
 
 const connection = require("./connection");
@@ -35,6 +37,10 @@ const mainMenu = () => {
         await UpdateAnEmployeeRole();
       } else if (answers.action === "Update an employee manager") {
         await UpdateAnEmployeeManager();
+      } else if (answers.action === "Add a Department") {
+        await AddADepartment();
+      } else if (answers.action === "Add a role") {
+        await AddARole();
       } else {
         console.log("not a valid choice please try again");
         mainMenu();

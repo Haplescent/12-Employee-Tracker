@@ -1,6 +1,6 @@
 const connection = require("./connection");
 
-const ViewAllEmployeesbyDepartmentPromise = (department_name) => {
+const ViewAllEmployeesbyDepartmentPromise = (department_id) => {
   return new Promise((resolve, reject) => {
     connection.query(
       `
@@ -8,8 +8,8 @@ const ViewAllEmployeesbyDepartmentPromise = (department_name) => {
     FROM employee, role, department
     WHERE employee.role_id = role.id AND
     role.department_id = department.id AND
-    department.s = ?`,
-      [department_name],
+    department.id = ?;`,
+      [department_id],
       (err, data) => {
         err ? reject(err) : resolve(data);
       }
@@ -21,7 +21,7 @@ const ViewAllDepartmentPromise = () => {
   return new Promise((resolve, reject) => {
     connection.query(
       `
-    SELECT s FROM department`,
+    SELECT * FROM department`,
       (err, data) => {
         err ? reject(err) : resolve(data);
       }
@@ -91,7 +91,7 @@ const GetRoleIdFromTitle = (title) => {
       WHERE title = ?`,
       [title],
       (err, data) => {
-        err ? reject(err) : resolve(data[0].id);
+        err ? reject(err) : resolve(data);
       }
     );
   });
@@ -169,6 +169,37 @@ const UpdateEmployeeManagerSQLRequest = (id, manager_id) => {
     );
   });
 };
+
+const AddADepartmentSqlRequest = (department) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `
+      INSERT INTO department(s)
+      VALUES (?);
+      `,
+      [department],
+      (err) => {
+        err ? reject(err) : resolve();
+      }
+    );
+  });
+};
+
+const AddARoleSqlRequest = (departmentID, title, salary) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      `
+      INSERT INTO role(title, salary, department_id)
+      VALUES (?,?,?);
+      `,
+      [title, salary, departmentID],
+      (err) => {
+        err ? reject(err) : resolve();
+      }
+    );
+  });
+};
+
 module.exports = {
   ViewAllDepartmentPromise,
   ViewAllEmployeesbyDepartmentPromise,
@@ -182,4 +213,6 @@ module.exports = {
   RemoveAnEmployeeFromDatabase,
   UpdateEmployeeRoleSQLRequest,
   UpdateEmployeeManagerSQLRequest,
+  AddADepartmentSqlRequest,
+  AddARoleSqlRequest,
 };
